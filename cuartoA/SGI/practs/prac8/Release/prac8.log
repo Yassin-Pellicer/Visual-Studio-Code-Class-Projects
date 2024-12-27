@@ -14,10 +14,10 @@ C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA
 C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\prac8\Source.cpp(138,31): warning C4305: 'inicializando': truncamiento de 'double' a 'GLfloat'
 C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\prac8\Source.cpp(138,36): warning C4305: 'inicializando': truncamiento de 'double' a 'GLfloat'
 C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\prac8\Source.cpp(138,41): warning C4305: 'inicializando': truncamiento de 'double' a 'GLfloat'
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\prac8\Source.cpp(251,24): warning C4244: 'argumento': conversión de 'float' a 'unsigned int'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\prac8\Source.cpp(252,24): warning C4244: 'argumento': conversión de 'float' a 'unsigned int'; posible pérdida de datos
   Generando código
-  1 of 17 functions ( 5.9%) were compiled, the rest were copied from previous compilation.
+  2 of 17 functions (11.8%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada
   prac8.vcxproj -> C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\prac8\prac8.exe

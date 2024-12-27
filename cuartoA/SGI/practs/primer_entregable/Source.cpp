@@ -621,6 +621,9 @@ void reshape(GLint w, GLint h)
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glShadeModel(GL_SMOOTH); // Modelo de iluminacion suave
+
 	glLoadIdentity();
 
 	glScalef(4.0f, 4.0f, 4.0f);

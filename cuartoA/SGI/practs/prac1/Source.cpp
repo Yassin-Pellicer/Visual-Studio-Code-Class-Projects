@@ -93,5 +93,5 @@ int main(int argc, char** argv)
 	glutReshapeFunc(reshape);
 
 	// Bucle de atencion a eventos
-	glutMainLoop0;
+	glutMainLoop();
 }
