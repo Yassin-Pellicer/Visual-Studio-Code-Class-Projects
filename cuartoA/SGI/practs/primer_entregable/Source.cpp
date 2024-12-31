@@ -17,17 +17,17 @@ bool isDragging = false;
 
 static float rotationAngle = 0.0f;
 float rotationSpeed = 0.0f; int fps = 60;
+float angle = 0.0f;
 
 struct CameraPosition {
 	float posX, posY, posZ;
 	float frontX, frontY, frontZ;
 };
 
-
 CameraPosition cameraPositions[] = {
+	{0.790621f, 1.32f, 1.02143f, -0.610145f, -0.924547f, -0.79229f},
 	{0.447824f, -0.78f, 0.300406f, -0.921863f, 0.397148f, -0.387515f},
 	{0.790621f, -0.84f, 1.02143f, -0.576432f, 0.453991f, -0.817145f},
-	{0.790621f, 1.32f, 1.02143f, -0.610145f, -0.924547f, -0.79229f},
 	{-1.34703f, -0.06f, 0.649987f, 0.879646f, 0.152986f, -0.475628f},
 	{0.00280719f, -0.45f, 2.29942f, -0.0104735f, 0.152986f, -0.999945f},
 	{0.0138368f, -0.36f, 0.696931f, 0.0209415f, 0.999848f, -0.999781f},
@@ -36,9 +36,9 @@ CameraPosition cameraPositions[] = {
 };
 
 CameraPosition original[] = {
+	{0.790621f, 1.32f, 1.02143f, -0.610145f, -0.924547f, -0.79229f},
 	{0.447824f, -0.78f, 0.300406f, -0.921863f, 0.397148f, -0.387515f},
 	{0.790621f, -0.84f, 1.02143f, -0.576432f, 0.453991f, -0.817145f},
-	{0.790621f, 1.32f, 1.02143f, -0.610145f, -0.924547f, -0.79229f},
 	{-1.34703f, -0.06f, 0.649987f, 0.879646f, 0.152986f, -0.475628f},
 	{0.00280719f, -0.45f, 2.29942f, -0.0104735f, 0.152986f, -0.999945f},
 	{0.0138368f, -0.36f, 0.696931f, 0.0209415f, 0.999848f, -0.999781f},
@@ -728,7 +728,31 @@ void updateCamera(int camind)
 	float frontZ = cameraPositions[cameraIndex].frontZ;
 
 	if (cameraIndex == 5) { cameraPositions[cameraIndex].posZ += 0.0001;  cameraPositions[cameraIndex].frontY -= 0.0007; }
-	if (cameraIndex == 4) { cameraPositions[cameraIndex].posZ += 0.0001;  cameraPositions[cameraIndex].frontY += 0.0002; }
+	if (cameraIndex == 4) {
+		angle += 0.007f; 
+		if (angle >= 360.0f) angle -= 360.0f; 
+
+		float radius = 2.5f;
+		cameraPosX = radius * cos(angle); 
+		cameraPosZ = radius * sin(angle); 
+		cameraPosY = -0.75f; 
+		frontX = -cameraPosX; 
+		frontY = -cameraPosY;
+		frontZ = -cameraPosZ;
+	}
+
+	if (cameraIndex == 2){
+		angle += 0.005f;
+		if (angle >= 360.0f) angle -= 360.0f;
+
+		float radius = 2.0f;
+		cameraPosX = radius * cos(angle);
+		cameraPosZ = radius * sin(angle);
+		cameraPosY = 1.25f;
+		frontX = -cameraPosX;
+		frontY = -cameraPosY;
+		frontZ = -cameraPosZ;
+	}
 
 	gluLookAt(cameraPosX, cameraPosY, cameraPosZ,
 		cameraPosX + frontX, cameraPosY + frontY, cameraPosZ + frontZ,
