@@ -1,0 +1,16 @@
+mejora de la interfaz ->
+añadido disparos y sonidos de efectos de explosión y disparo.
+
+mejora de la geometría ->
+añadido hangar, nave, meteoritos alrededor de la plataforma de despegue.
+
+mejora de la apariencia ->
+se utiliza fondo estelar y distintos materiales tanto en el hangar como en la pista de aterrizaje.
+
+mejora de la animación ->
+los disparos tienen un efecto caótico que simula los de una pistola de plasma con dispersión. Se implementa un sprite con explosión que siempre está cara a la cámara.
+
+mejoras en las vistas ->
+se implementa tercera persona.
+
+Todos los controles están en la consola que se abre junto con el ejecutable.

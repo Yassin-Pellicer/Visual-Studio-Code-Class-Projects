@@ -5,8 +5,9 @@
 #include <freeimage/FreeImage.h>
 #include <vector>
 #include <chrono>
+#include <cstdlib>
+#include <ctime>
 #include <mmsystem.h>
-#include <thread>
 #include <windows.h>
 #pragma comment(lib, "winmm.lib")
 #include <random>
@@ -14,8 +15,8 @@
 using namespace cb;
 
 constexpr float INITIAL_SPEED = 0.0f;
-constexpr float MAX_SPEED = 2.0f;
-constexpr float MIN_SPEED = 0.05f;
+constexpr float MAX_SPEED = 2.5f;
+constexpr float MIN_SPEED = 0.00f;
 constexpr float SPEED_INCREMENT = 0.025f;
 constexpr float MOUSE_SENSITIVITY = 0.05f;
 constexpr int GRID_SIZE = 10;
@@ -23,7 +24,6 @@ constexpr float CAMERA_Z = 3.0f;
 
 std::chrono::steady_clock::time_point lastPressedTime = std::chrono::steady_clock::now();
 const std::chrono::milliseconds triggerInterval(100);
-
 
 GLuint grid;
 float speed = INITIAL_SPEED;
@@ -44,11 +44,20 @@ float lightDistance = 10.0f;
 
 float fps = 165;
 
-static GLuint tex[8]; // Ids de texturas
+static GLuint tex[8];
 
-void playExplosionAsync() {
-    PlaySound(TEXT("assets/explosion.wav"), NULL, SND_FILENAME | SND_ASYNC );
-}
+float frontX = cos(yaw * PI / 180.0f);
+float frontZ = tan(pitch * PI / 180.0f);
+float frontY = -sin(yaw * PI / 180.0f);
+
+float copyX = frontX;
+float copyY = frontY;
+float copyZ = frontZ;
+
+float yawCopy = yaw;
+float pitchCopy = pitch;
+
+bool thirdPerson = false;
 
 void saveScreenshot(char* nombre, int ancho, int alto)
 {
@@ -131,15 +140,15 @@ void generate_grid()
     grid = glGenLists(1);
     glNewList(grid, GL_COMPILE);
 
-    float stepSize = 10.0f;  // Size of each square in the grid
-    int subdivisions = 4;   // Number of subdivisions per square (adjust as needed)
-    float subStepSize = stepSize / subdivisions; // Step size for subdivisions
+    float stepSize = 10.0f;  
+      int subdivisions = 4;   
+      float subStepSize = stepSize / subdivisions;  
 
     for (int i = -GRID_SIZE; i < GRID_SIZE; ++i)
     {
         for (int j = -GRID_SIZE; j < GRID_SIZE; ++j)
         {
-            // Subdivide the square into smaller quads
+             
             for (int x = 0; x < subdivisions; ++x)
             {
                 for (int y = 0; y < subdivisions; ++y)
@@ -152,7 +161,7 @@ void generate_grid()
                     GLfloat v3[] = { xStart + subStepSize, yStart + subStepSize, 0.0f };
                     GLfloat v4[] = { xStart, yStart + subStepSize, 0.0f };
 
-                    // Use the helper function to draw the quad
+                     
                     quad(v1, v2, v3, v4);
                 }
             }
@@ -166,33 +175,32 @@ void draw_asteroid(float x, float y, float z, float rotationX, float rotationY, 
 {
 	glPushMatrix();
 
-	glEnable(GL_TEXTURE_GEN_S); // Enable texture coordinate generation for S
-	glEnable(GL_TEXTURE_GEN_T); // Enable texture coordinate generation for T
-
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR); // Use object-space linear mapping
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR); // Use object-space linear mapping
+	glEnable(GL_TEXTURE_GEN_S); 
+  	glEnable(GL_TEXTURE_GEN_T); 
+  
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);   
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);   
 
 	GLfloat plane_s[] = { 1.0f, 0.0f, 1.0f, 0.0f };
 	GLfloat plane_t[] = { 0.0f, 1.0f, 0.0f, 1.0f };
 
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, plane_s); // Map S coordinates in object space
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, plane_t); // Map T coordinates in object space
+	glTexGenfv(GL_S, GL_OBJECT_PLANE, plane_s);   
+	glTexGenfv(GL_T, GL_OBJECT_PLANE, plane_t);   
 
-	glTranslatef(x, y, z); // Move to the asteroid's position
+	glTranslatef(x, y, z);   
 
-	// Apply rotation around the asteroid's local center
+	  
 	if (rotatesX == 0 && rotatesY == 0 && rotatesZ == 0) glRotatef(rotationW, 0, 1, 0);
 	else  glRotatef(rotationW, rotatesX, rotatesY, rotatesZ);
 	
 	glScalef(1.35, 1.35, 1.35);
-
-	// Draw the first shape
+	  
 	glPushMatrix();
 	glRotatef(rotationX, 1, 0, 1);
 	glRotatef(rotationY, 0, 1, 0);
 	glRotatef(rotationZ, 1, 0, 1);
 	glScalef(1.5f * 4 * scale, 1.0f * 4 * scale, 0.7f * 4 * scale);
-	glEnable(GL_TEXTURE_2D); // Enable texturing
+	glEnable(GL_TEXTURE_2D);   
 	glBindTexture(GL_TEXTURE_2D, tex[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -201,12 +209,11 @@ void draw_asteroid(float x, float y, float z, float rotationX, float rotationY, 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
 	glutSolidDodecahedron();
-	glDisable(GL_TEXTURE_2D); // Disable texturing
+	glDisable(GL_TEXTURE_2D);   
 	glPopMatrix();
 
-	// Draw the second shape (additional components of the asteroid)
 	glPushMatrix();
-	glTranslatef(5, 15, 0); // Offset from the local center
+	glTranslatef(5, 15, 0);   
 	glRotatef(rotationX, 1, 0, 1);
 	glRotatef(rotationY, 0, 1, 0);
 	glRotatef(rotationZ, 1, 1, 1);
@@ -223,9 +230,8 @@ void draw_asteroid(float x, float y, float z, float rotationX, float rotationY, 
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 
-	// Draw the third shape
 	glPushMatrix();
-	glTranslatef(5, 5, -5); // Offset from the local center
+	glTranslatef(5, 5, -5);   
 	glRotatef(rotationX, 0, 0, 1);
 	glRotatef(rotationY, 0, 1, 0);
 	glRotatef(rotationZ, 0, 1, 1);
@@ -241,10 +247,9 @@ void draw_asteroid(float x, float y, float z, float rotationX, float rotationY, 
 	glutSolidIcosahedron();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
-
-	// Draw the fourth shape
+	  
 	glPushMatrix();
-	glTranslatef(-10, 25, 0); // Offset from the local center
+	glTranslatef(-10, 25, 0);   
 	glRotatef(rotationX, 1, 0, 0);
 	glRotatef(rotationY, 0, 1, 0);
 	glRotatef(rotationZ, 1, 0, 1);
@@ -261,7 +266,7 @@ void draw_asteroid(float x, float y, float z, float rotationX, float rotationY, 
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 
-	glPopMatrix(); // Pop transformations for the asteroid
+	glPopMatrix();   
 
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
@@ -314,32 +319,29 @@ void generate_distribution_asteroids()
 }
 
 struct Billboard {
-    float position[3]; // Position of the billboard
+    float position[3];   
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 };
 
 std::vector<Billboard> activeBillboards;
 
 void draw_explosion(const Billboard& billboard) {
-    // Enable blending for transparency
+      
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_LIGHTING);
-    // Enable 2D texturing
+      
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex[6]);
-
-    // Get the camera orientation
+      
     float modelview[16];
     glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
 
-    // Extract camera orientation for billboarding
     float right[3] = { modelview[0], modelview[4], modelview[8] };
     float up[3] = { modelview[1], modelview[5], modelview[9] };
 
-    float size = 200.0f; // Size of the billboard
+    float size = 200.0f;   
 
-    // Render the billboard
     glBegin(GL_QUADS);
     glTexCoord2f(0, 0); glVertex3f(billboard.position[0] - size * right[0] - size * up[0],
         billboard.position[1] - size * right[1] - size * up[1],
@@ -360,8 +362,7 @@ void draw_explosion(const Billboard& billboard) {
 
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
-
-    // Disable light after rendering
+      
     glEnable(GL_LIGHTING);
 }
 
@@ -374,14 +375,12 @@ void spawn_explosion(float x, float y, float z) {
 void update_explosions() {
     auto now = std::chrono::high_resolution_clock::now();
 
-    // Remove expired billboards
     activeBillboards.erase(std::remove_if(activeBillboards.begin(), activeBillboards.end(),
         [now](const Billboard& b) {
             return std::chrono::duration<float>(now - b.startTime).count() > 0.1f;
         }),
         activeBillboards.end());
-
-    // Draw remaining billboards
+      
     for (const auto& billboard : activeBillboards) {
         draw_explosion(billboard);
     }
@@ -389,14 +388,12 @@ void update_explosions() {
 
 void check_collision() {
     const float COLLISION_THRESHOLD = 100.0f;
-
-    // Create vectors to store indices of objects to remove
+      
     std::vector<size_t> asteroids_to_remove;
     std::vector<size_t> lasers_to_remove;
-
-    // Iterate through each laser
+      
     for (size_t l = 0; l < lasers.size(); l++) {
-        auto& laser = *lasers[l]; // Dereference the pointer to get the laser position vector
+        auto& laser = *lasers[l];   
         float laser_x = laser[0];
         float laser_y = laser[1];
         float laser_z = laser[2];
@@ -404,10 +401,9 @@ void check_collision() {
         float distance_from_center = sqrt(laser_x * laser_x + laser_y * laser_y + laser_z * laser_z);
         if (distance_from_center > 7000) {
             lasers_to_remove.push_back(l);
-            continue; // Skip collision checks for this laser
+            continue;   
         }
-
-        // Check against each asteroid
+          
         for (size_t a = 0; a < asteroid_positions.size(); a++) {
 
             auto& asteroid = asteroid_positions[a];
@@ -415,39 +411,29 @@ void check_collision() {
             float asteroid_y = asteroid[1];
             float asteroid_z = asteroid[2];
             float asteroid_scale = asteroid[6];
-
-            // Calculate distance between laser and asteroid
+              
             float dx = laser_x - asteroid_x;
             float dy = laser_y - asteroid_y;
             float dz = laser_z - asteroid_z;
             float distance = sqrt(dx * dx + dy * dy + dz * dz);
 
-            // Adjust collision threshold based on asteroid scale
             float adjusted_threshold = COLLISION_THRESHOLD ;
 
-            // Check if collision occurred
             if (distance < adjusted_threshold) {
-                std::cout << "Collision detected at position: ("
-                    << asteroid_x << ", "
-                    << asteroid_y << ", "
-                    << asteroid_z << ")" << std::endl;
-
                 spawn_explosion(
-                    laser_x - (dx * 0.5f),  // Spawn at midpoint between laser and asteroid
+                    laser_x - (dx * 0.5f),    
                     laser_y - (dy * 0.5f),
                     laser_z - (dz * 0.5f)
                 );
 
-                std::thread soundThread(playExplosionAsync);
-                soundThread.detach();  // Detach the thread to allow independent sound play
+                PlaySound(TEXT("assets/explosion.wav"), NULL, SND_FILENAME | SND_ASYNC );
 
                 glutPostRedisplay();
-
-                // Mark both objects for removal
+                  
                 asteroids_to_remove.push_back(a);
                 lasers_to_remove.push_back(l);
 
-                break; // Move to next laser since this one will be destroyed
+                break;   
             }
         }
     }
@@ -462,7 +448,7 @@ void check_collision() {
 
     // Remove lasers (and free memory)
     for (size_t index : lasers_to_remove) {
-        delete lasers[index]; // Free the memory for the vector
+        delete lasers[index];
         lasers.erase(lasers.begin() + index);
     }
 }
@@ -525,8 +511,8 @@ void draw_lasers()
 {
     if (!lasers.empty()) {
         for (size_t i = 0; i < lasers.size(); i++) { // Use < instead of <=
-            std::vector<float>* l = lasers.at(i);   // Get the pointer to the laser vector
-			laser((*l)[0], (*l)[1], (*l)[2], (*l)[3], (*l)[4]); // Dereference and access elements
+            std::vector<float>* l = lasers.at(i);     
+			laser((*l)[0], (*l)[1], (*l)[2], (*l)[3], (*l)[4]);   
         }
     }
 }
@@ -540,10 +526,10 @@ void generate_distribution_asteroids_hangar()
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    for (int i = 0; i < 150; ++i) {
+    for (int i = 0; i < 250; ++i) {
         float x = range_min + static_cast<float>(rand()) / RAND_MAX * (range_max - range_min);
         float y = range_min + static_cast<float>(rand()) / RAND_MAX * (range_max - range_min);
-        float z = range_min + static_cast<float>(rand()) / RAND_MAX * (-10 - range_min);
+        float z = range_min + static_cast<float>(rand()) / RAND_MAX * (35 - range_min);
         float destination_x = range_min - 25 + static_cast<float>(rand()) / RAND_MAX * (50);
         float destination_y = range_min - 25 + static_cast<float>(rand()) / RAND_MAX * (50);
         float destination_z = range_min - 25 + static_cast<float>(rand()) / RAND_MAX * (50);
@@ -559,8 +545,7 @@ void generate_distribution_asteroids_hangar()
 
 
         float distance = sqrt(x * x + y * y + z * z);
-        if (distance < 80.0f) {
-            // Move the point outward by 50 units while maintaining direction
+        if (distance < 200.0f) {
             float scale_factor = (distance + 50.0f) / distance;
             x *= scale_factor;
             y *= scale_factor;
@@ -607,25 +592,138 @@ void asteroid_field()
     }
 }
 
+
+
+void drawBox(float x, float y, float z) {
+    glPushMatrix();
+    glTranslatef(x, y, z);
+      
+    glScalef(1.2, 1.2, 1.2);
+
+    glBegin(GL_QUADS);
+
+    // Front face
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, 0.5f);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
+
+    // Back face
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, -0.5f);
+
+    // Top face
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, 0.5f, 0.5f);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
+
+    // Bottom face
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, -0.5f, -0.5f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
+
+    // Right face
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, -0.5f, -0.5f);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, 0.5f, 0.5f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
+
+    // Left face
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
+
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
+}
+
+void drawShip(float x, float y, float z, float yaw, float pitch) {
+    glPushMatrix();
+
+    // Translate to the ship's position
+    glTranslatef(x, y, z);
+      
+    glRotatef(-yawCopy, 0.0f, 0.0f, 1.0f);    
+    glRotatef(-pitchCopy, 0.0f, 1.0f, 0.0f);    
+
+    glutSolidSphere(1, 10, 10);
+    glPushMatrix();
+    glScalef(0.75, 2.5, 0.25);
+    drawBox(0.0f, -0.5f, 0.0f);   
+    drawBox(0.0f, 0.5f, 0.0f);   
+    glPopMatrix();
+
+    glPushMatrix();
+    glScalef(0.75, 2, 0.25);
+    glTranslatef(0.0f, -2.0f, 0.0f);   
+    glutSolidRhombicDodecahedron();
+    glPopMatrix();
+    glPushMatrix();
+    glScalef(0.75, 2, 0.25);
+    glTranslatef(0.0f, 2.0f, 0.0f);   
+    glutSolidRhombicDodecahedron();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.0f, -3.0f, 0.0f);   
+    glScalef(0.25, 0.25, 3);
+    glutSolidRhombicDodecahedron();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0.0f, 3.0f, 0.0f);   
+    glScalef(0.25, 0.25, 3);
+    glutSolidRhombicDodecahedron();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.0f, -3.5f, 0.0f);   
+    glScalef(0.75, 0.25, 2);
+    glutSolidRhombicDodecahedron();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0.0f, 3.5f, 0.0f);   
+    glScalef(0.75, 0.25, 2);
+    glutSolidRhombicDodecahedron();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-1, 0.0f, 0.0f);   
+    glScalef(0.75, 0.25, 2);
+    glRotatef(90, 1, 0, 0);
+    glutSolidRhombicDodecahedron();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0.0f, 3.5f, 0.0f);   
+    glScalef(0.75, 0.25, 2);
+    glutSolidRhombicDodecahedron();
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
 void draw_hangar() 
 {
     glPushMatrix();
-    // Transformations for the hangar
+      
     glRotatef(90, 1, 0, 0);
     glTranslatef(0, 10.005, 0);
     glScalef(40, 20, 20);
 
-    // Enable texturing
+      
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex[4]);
 
-    // Set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // Define how the texture is applied
+      
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     // Front face
@@ -645,7 +743,6 @@ void draw_hangar()
     //DOORS
 
     //back
-
     GLfloat left_door_v0[] = { -1.0f, -0.5f,  0.5f }; // Bottom-left
     GLfloat left_door_v1[] = { -1.0f, -0.5f,  1.0f }; // Bottom-right
     GLfloat left_door_v2[] = { -1.0f,  0.5f,  1.0f }; // Top-right
@@ -661,7 +758,6 @@ void draw_hangar()
     quadtex(right_door_v0, right_door_v1, right_door_v2, right_door_v3, 0.0f, 1.0f, 0.0f, 1.0f, 50, 50);
 
     //front
-
     GLfloat _left_door_v0[] = { 1.0f, -0.5f,  0.5f }; // Bottom-left
     GLfloat _left_door_v1[] = { 1.0f, -0.5f,  1.0f }; // Bottom-right
     GLfloat _left_door_v2[] = { 1.0f,  0.5f,  1.0f }; // Top-right
@@ -691,26 +787,22 @@ void draw_hangar()
     quadtex(bottom_v0, bottom_v1, bottom_v2, bottom_v3, 0.0f, 1.0f, 0.0f, 1.0f, 50, 50);
 
     // ROOF
-    // Front triangular face
     GLfloat roof_front_v0[] = { -1.0f, 0.5f, 1.0f };    // Bottom left
     GLfloat roof_front_v1[] = { 1.0f, 0.5f, 1.0f };     // Bottom right
     GLfloat roof_front_v2[] = { 0.0f, 1.0f, 1.0f };     // Top center
     quadtex(roof_front_v1, roof_front_v0, roof_front_v2, roof_front_v2, 0.0f, 1.0f, 0.5f, 25, 25);
-
-    // Back triangular face (now facing the opposite direction)
+      
     GLfloat roof_back_v0[] = { -1.0f, 0.5f, -1.0f };    // Bottom left
     GLfloat roof_back_v1[] = { 1.0f, 0.5f, -1.0f };     // Bottom right
     GLfloat roof_back_v2[] = { 0.0f, 1.0f, -1.0f };     // Top center
     quadtex(roof_back_v1, roof_back_v0, roof_back_v2, roof_back_v2, 0.0f, 1.0f, 0.5f, 25, 25);
-
-    // Left roof face (now right side when viewed from front)
+      
     GLfloat roof_left_v0[] = { -1.0f, 0.5f, -1.0f };    // Bottom back
     GLfloat roof_left_v1[] = { -1.0f, 0.5f, 1.0f };     // Bottom front
     GLfloat roof_left_v2[] = { 0.0f, 1.0f, 1.0f };      // Top front
     GLfloat roof_left_v3[] = { 0.0f, 1.0f, -1.0f };     // Top back
     quadtex(roof_left_v1, roof_left_v0, roof_left_v3, roof_left_v2, 0.0f, 1.0f, 0.0f, 1.0f, 25, 25);
-
-    // Right roof face (now left side when viewed from front)
+      
     GLfloat roof_right_v0[] = { 1.0f, 0.5f, -1.0f };    // Bottom back
     GLfloat roof_right_v1[] = { 1.0f, 0.5f, 1.0f };     // Bottom front
     GLfloat roof_right_v2[] = { 0.0f, 1.0f, 1.0f };     // Top front
@@ -718,11 +810,8 @@ void draw_hangar()
     quadtex(roof_right_v1, roof_right_v0, roof_right_v3, roof_right_v2, 0.0f, 1.0f, 0.0f, 1.0f, 25, 25);
 
     //ROAD
-
-    // Disable texturing after drawing
     glDisable(GL_TEXTURE_2D);
 
-    // Restore the previous matrix state
     glPopMatrix();
 
     glPushMatrix();
@@ -750,7 +839,6 @@ void draw_hangar()
 
     glDisable(GL_TEXTURE_2D);
 
-    // Restore the previous matrix state
     glPopMatrix();
 
     glPushMatrix();
@@ -761,7 +849,6 @@ void draw_hangar()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Enable 2D texturing
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex[6]);
 
@@ -788,7 +875,6 @@ void draw_hangar()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Enable 2D texturing
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex[7]);
 
@@ -813,37 +899,37 @@ void draw_hangar()
 void draw_field() 
 {
     glPushMatrix();
-    glPushAttrib(GL_CURRENT_BIT); // Save current color state
+    glPushAttrib(GL_CURRENT_BIT);   
 
-    glEnable(GL_TEXTURE_2D); // Enable texturing
-    // Bind the texture
+    glEnable(GL_TEXTURE_2D);   
+      
     glBindTexture(GL_TEXTURE_2D, tex[1]);
-    GLfloat v0[] = { -100.0f, -100.0f, 0.0f }; // Bottom-left
-    GLfloat v1[] = { 100.0f, -100.0f, 0.0f };  // Bottom-right
-    GLfloat v2[] = { 100.0f, 100.0f, 0.0f };   // Top-right
-    GLfloat v3[] = { -100.0f, 100.0f, 0.0f };  // Top-left
+    GLfloat v0[] = { -100.0f, -100.0f, 0.0f };   
+    GLfloat v1[] = { 100.0f, -100.0f, 0.0f };    
+    GLfloat v2[] = { 100.0f, 100.0f, 0.0f };     
+    GLfloat v3[] = { -100.0f, 100.0f, 0.0f };    
 
     quadtex(v0, v1, v2, v3, 0.0f, 1.0f, 0.0f, 1.0f, 100, 100);
-    // Set texture parameters
+      
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    // Define the way the texture is applied
+      
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-    // Draw the grid using the display list
-    glDisable(GL_TEXTURE_2D); // Disable texturing
+      
+    glDisable(GL_TEXTURE_2D);   
     glPopMatrix();
-    glPopAttrib(); // Restore previous color state
+    glPopAttrib();   
 
     glPushMatrix();
     glPushAttrib(GL_CURRENT_BIT);
     glTranslatef(0.0f, 0, -100.5f);
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex[0]);
+    glBindTexture(GL_TEXTURE_2D, tex[2]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -851,49 +937,49 @@ void draw_field()
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
 
-    float size = 100.0f; // Half of 200 for vertex positions
+    float size = 100.0f;   
 
-    // Front face
+      
     GLfloat front_v0[] = { -size, -size,  size };
     GLfloat front_v1[] = { size, -size,  size };
     GLfloat front_v2[] = { size,  size,  size };
     GLfloat front_v3[] = { -size,  size,  size };
-    quadtex(front_v0, front_v1, front_v2, front_v3, 0.0f, 1.0f, 0.0f, 1.0f, 1, 1);
+    quadtex(front_v0, front_v1, front_v2, front_v3, 0.0f, 1.0f, 0.0f, 1.0f, 20, 20);
 
-    // Back face
+      
     GLfloat back_v0[] = { -size, -size, -size };
     GLfloat back_v1[] = { size, -size, -size };
     GLfloat back_v2[] = { size,  size, -size };
     GLfloat back_v3[] = { -size,  size, -size };
-    quadtex(back_v0, back_v1, back_v2, back_v3, 0.0f, 1.0f, 0.0f, 1.0f, 1, 1);
+    quadtex(back_v0, back_v1, back_v2, back_v3, 0.0f, 1.0f, 0.0f, 1.0f, 20, 20);
 
-    // Top face
+      
     GLfloat top_v0[] = { -size,  size, -size };
     GLfloat top_v1[] = { size,  size, -size };
     GLfloat top_v2[] = { size,  size,  size };
     GLfloat top_v3[] = { -size,  size,  size };
-    quadtex(top_v0, top_v1, top_v2, top_v3, 0.0f, 1.0f, 0.0f, 1.0f, 1, 1);
+    quadtex(top_v0, top_v1, top_v2, top_v3, 0.0f, 1.0f, 0.0f, 1.0f, 20, 20);
 
-    // Bottom face
+      
     GLfloat bottom_v0[] = { -size, -size, -size };
     GLfloat bottom_v1[] = { size, -size, -size };
     GLfloat bottom_v2[] = { size, -size,  size };
     GLfloat bottom_v3[] = { -size, -size,  size };
-    quadtex(bottom_v0, bottom_v1, bottom_v2, bottom_v3, 0.0f, 1.0f, 0.0f, 1.0f, 1, 1);
+    quadtex(bottom_v0, bottom_v1, bottom_v2, bottom_v3, 0.0f, 1.0f, 0.0f, 1.0f, 20, 20);
 
-    // Right face
+      
     GLfloat right_v0[] = { size, -size, -size };
     GLfloat right_v1[] = { size, -size,  size };
     GLfloat right_v2[] = { size,  size,  size };
     GLfloat right_v3[] = { size,  size, -size };
-    quadtex(right_v0, right_v1, right_v2, right_v3, 0.0f, 1.0f, 0.0f, 1.0f, 1, 1);
+    quadtex(right_v0, right_v1, right_v2, right_v3, 0.0f, 1.0f, 0.0f, 1.0f, 20, 20);
 
-    // Left face
+      
     GLfloat left_v0[] = { -size, -size, -size };
     GLfloat left_v1[] = { -size, -size,  size };
     GLfloat left_v2[] = { -size,  size,  size };
     GLfloat left_v3[] = { -size,  size, -size };
-    quadtex(left_v0, left_v1, left_v2, left_v3, 0.0f, 1.0f, 0.0f, 1.0f, 1, 1);
+    quadtex(left_v0, left_v1, left_v2, left_v3, 0.0f, 1.0f, 0.0f, 1.0f, 20, 20);
 
     glDisable(GL_TEXTURE_2D);
     glPopMatrix();
@@ -901,91 +987,97 @@ void draw_field()
 }
 
 void drawUIImage() {
-    // Enable blending for transparency
+      
     glEnable(GL_BLEND);
     glDisable(GL_LIGHTING);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Enable texturing
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex[3]);  // Bind the texture (tex[4])
-
-    // Set texture parameters
+    glBindTexture(GL_TEXTURE_2D, tex[3]);    
+      
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // Define the way the texture is applied
+      
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-    // Switch to orthographic projection
     glMatrixMode(GL_PROJECTION);
-    glPushMatrix();  // Save the current projection matrix
-    glLoadIdentity();  // Reset the projection matrix
-    gluOrtho2D(0.0, 1.0, 0.0, 1.0);  // Set an orthographic projection for the texture
+    glPushMatrix();    
+    glLoadIdentity();    
+    gluOrtho2D(0.0, 1.0, 0.0, 1.0);    
 
-    // Switch back to modelview matrix
     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();  // Save the current modelview matrix
-    glLoadIdentity();  // Reset the modelview matrix
+    glPushMatrix();    
+    glLoadIdentity();    
 
-    // Define the quad (a rectangle) to apply the texture
-    float quadWidth = 1.0f;  // You can scale this as needed
-    float quadHeight = 1.0f;  // You can scale this as needed
+    float quadWidth = 1.0f;    
+    float quadHeight = 1.0f;    
 
-    // Draw the quad (this is where the texture will be applied)
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);           // Bottom-left
-    glTexCoord2f(1.0f, 0.0f); glVertex2f(quadWidth, 0.0f);       // Bottom-right
-    glTexCoord2f(1.0f, 1.0f); glVertex2f(quadWidth, quadHeight); // Top-right
-    glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, quadHeight);      // Top-left
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);             
+    glTexCoord2f(1.0f, 0.0f); glVertex2f(quadWidth, 0.0f);         
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(quadWidth, quadHeight);   
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, quadHeight);        
     glEnd();
 
-    // Restore previous matrix states
-    glPopMatrix();  // Restore the modelview matrix
+      
+    glPopMatrix();    
     glMatrixMode(GL_PROJECTION);
-    glPopMatrix();  // Restore the projection matrix
+    glPopMatrix();    
 
-    // Disable texturing
+      
     glDisable(GL_TEXTURE_2D);
 
     glEnable(GL_LIGHTING);
-    // Disable blending
+      
     glDisable(GL_BLEND);
 }
 
 void update_camera()
 {
-    float frontX = cos(yaw * PI / 180.0f);
-    float frontZ = tan(pitch * PI / 180.0f);
-    float frontY = -sin(yaw * PI / 180.0f);
+    float leftAngle = yawCopy * PI / 180 + PI / 90.0f;
+    float rightAngle = yawCopy * PI / 180 - PI / 90.0f;
 
-    gluLookAt(posX, posY, posZ, posX + frontX, posY + frontY, posZ + frontZ, 0.0, 0.0, 1.0);
+    frontX = cos(yawCopy * PI / 180.0f);
+    frontZ = tan(pitchCopy * PI / 180.0f);
+    frontY = -sin(yawCopy * PI / 180.0f);
 
-    float leftOffsetX = -2.0f * sin(yaw * PI / 180.0f);
-    float leftOffsetZ = 2.0f * cos(yaw * PI / 180.0f);
+    if (thirdPerson)
+    {
+        gluLookAt(posX - 10 * cos(yaw * PI / 180.0f), posY + 10 * sin(yaw * PI / 180.0f), posZ - 10 * sin(pitch * PI / 180.0f), posX, posY, posZ, 0.0, 0.0, 1.0);
 
-    float leftAngle = yaw * PI / 180 + PI / 90.0f;
-    float rightAngle = yaw * PI / 180 - PI / 90.0f;
+        GLfloat light_position_left[] = { posX + lightDistance * sin(leftAngle), posY + lightDistance * cos(leftAngle) , posZ, 1.0f };
+        GLfloat light_direction_left[] = { frontX, frontY, frontZ };
 
-    GLfloat light_position_left[] = { posX + lightDistance * sin(leftAngle), posY + lightDistance * cos(leftAngle) , posZ, 1.0f };
-    GLfloat light_direction_left[] = { frontX, frontY, frontZ };
+        GLfloat light_position_right[] = { posX - lightDistance * sin(rightAngle), posY - lightDistance * cos(rightAngle) , posZ, 1.0f };
+        GLfloat light_direction_right[] = { frontX, frontY, frontZ };
 
-    GLfloat light_position_right[] = { posX - lightDistance * sin(rightAngle), posY - lightDistance * cos(rightAngle) , posZ, 1.0f };
-    GLfloat light_direction_right[] = { frontX, frontY, frontZ };
-    
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position_left);
-	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light_direction_left);
+        glLightfv(GL_LIGHT1, GL_POSITION, light_position_left);
+        glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light_direction_left);
 
-	glLightfv(GL_LIGHT2, GL_POSITION, light_position_right);
-	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, light_direction_right);
+        glLightfv(GL_LIGHT2, GL_POSITION, light_position_right);
+        glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, light_direction_right);
+    }
+    else {
+        gluLookAt(posX, posY, posZ, posX + frontX, posY + frontY, posZ + frontZ, 0.0, 0.0, 1.0);
+
+        GLfloat light_position_left[] = { posX + lightDistance * sin(leftAngle), posY + lightDistance * cos(leftAngle) , posZ, 1.0f };
+        GLfloat light_direction_left[] = { frontX, frontY, frontZ };
+
+        GLfloat light_position_right[] = { posX - lightDistance * sin(rightAngle), posY - lightDistance * cos(rightAngle) , posZ, 1.0f };
+        GLfloat light_direction_right[] = { frontX, frontY, frontZ };
+
+        glLightfv(GL_LIGHT1, GL_POSITION, light_position_left);
+        glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light_direction_left);
+
+        glLightfv(GL_LIGHT2, GL_POSITION, light_position_right);
+        glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, light_direction_right);
+    }
 
     glutPostRedisplay();
 }
 
-#include <cstdlib>
-#include <ctime>
 
 void animate(int n)
 {
@@ -995,20 +1087,36 @@ void animate(int n)
         seeded = true;
     }
 
-    float frontX = cos(yaw * PI / 180.0f) * cos(pitch * PI / 180.0f);
-    float frontZ = sin(pitch * PI / 180.0f);
-    float frontY = -sin(yaw * PI / 180.0f) * cos(pitch * PI / 180.0f);
+    if (!thirdPerson)
+    {
+        float frontX = cos(yaw * PI / 180.0f) * cos(pitch * PI / 180.0f);
+        float frontZ = sin(pitch * PI / 180.0f);
+        float frontY = -sin(yaw * PI / 180.0f) * cos(pitch * PI / 180.0f);
 
-    posX += speed * frontX;
-    posY += speed * frontY;
-    posZ += speed * frontZ;
+        copyX = frontX;
+        copyY = frontY;
+        copyZ = frontZ;
+
+        yawCopy = yaw;
+        pitchCopy = pitch;
+
+        posX += speed * frontX;
+        posY += speed * frontY;
+        posZ += speed * frontZ;
+    }
+    else
+    {
+        posX += speed * copyX;
+        posY += speed * copyY;
+        posZ += speed * copyZ;
+    }
 
     for (size_t i = 0; i < lasers.size(); i++) {
         std::vector<float>* l = lasers.at(i);
 
-        float dispersionX = (std::rand() % 200 - 100) / 100.0f; // Random value between -0.1 and 0.1
-        float dispersionY = (std::rand() % 200 - 100) / 100.0f;
-        float dispersionZ = (std::rand() % 200 - 100) / 100.0f;
+        float dispersionX = (std::rand() % 200 - 100) / 200.0f;   
+        float dispersionY = (std::rand() % 200 - 100) / 200.0f;
+        float dispersionZ = (std::rand() % 200 - 100) / 200.0f;
 
         (*l)[0] += speed * (*l)[5] + laserSpeed * (*l)[5] + dispersionX;
         (*l)[1] += speed * (*l)[6] + laserSpeed * (*l)[6] + dispersionY;
@@ -1032,22 +1140,20 @@ void lighting()
 {
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-
-    // Make the lighting warmer by increasing red and green components
-    GLfloat light_ambient[] = { 0.20f, 0.20f, 0.20f, 1.0f };  // Warmer ambient light (more red and green)
-    GLfloat light_diffuse[] = { 0.6f, 0.4f, 0.7f, 1.0f };  // Warmer diffuse light
-    GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f }; // Warmer specular light
-    GLfloat light_position[] = { 1.0f, .5f, 0.5f, 0.0f }; // Light position
+      
+    GLfloat light_ambient[] = { 0.20f, 0.20f, 0.20f, 1.0f };    
+    GLfloat light_diffuse[] = { 0.6f, 0.4f, 0.7f, 1.0f };    
+    GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };   
+    GLfloat light_position[] = { 1.0f, .5f, 0.5f, 0.0f };   
 
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-    // Material properties (make the material slightly warmer as well)
-    GLfloat mat_ambient[] = { 0.3f, 0.2f, 0.1f, 1.0f }; // Warmer ambient material
-    GLfloat mat_diffuse[] = { 0.8f, 0.4f, 0.2f, 1.0f }; // Warmer diffuse material
-    GLfloat mat_specular[] = { 1.0f, 0.8f, 0.6f, 1.0f }; // Warmer specular material
+    GLfloat mat_ambient[] = { 0.3f, 0.2f, 0.1f, 1.0f }; 
+    GLfloat mat_diffuse[] = { 0.8f, 0.4f, 0.2f, 1.0f };   
+    GLfloat mat_specular[] = { 1.0f, 0.8f, 0.6f, 1.0f };   
     GLfloat mat_shininess[] = { 10.0f };
 
     glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
@@ -1055,28 +1161,25 @@ void lighting()
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
-    // Enable secondary lights
     glEnable(GL_LIGHT1);
     glEnable(GL_LIGHT2);
 
-    GLfloat ambient_spot[] = { 0.3f, 0.2f, 0.1f, 1.0f }; // Warmer spot ambient
-    GLfloat diffuse_spot[] = { 0.6f, 0.5f, 0.3f, 1.0f }; // Warmer spot diffuse
-    GLfloat specular_spot[] = { 1.0f, 0.9f, 0.8f, 1.0f }; // Warmer spot specular
+    GLfloat ambient_spot[] = { 0.3f, 0.2f, 0.1f, 1.0f };   
+    GLfloat diffuse_spot[] = { 0.6f, 0.5f, 0.3f, 1.0f };   
+    GLfloat specular_spot[] = { 1.0f, 0.9f, 0.8f, 1.0f };   
 
-    // Spotlights setup with a sharper beam
     glLightfv(GL_LIGHT1, GL_AMBIENT, ambient_spot);
     glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse_spot);
     glLightfv(GL_LIGHT1, GL_SPECULAR, specular_spot);
-    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 8.0f);  // Sharper beam, lower cutoff angle
-    glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 50.0f); // Higher exponent for sharper beam
+    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 8.0f);    
+    glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 50.0f);   
 
     glLightfv(GL_LIGHT2, GL_AMBIENT, ambient_spot);
     glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse_spot);
     glLightfv(GL_LIGHT2, GL_SPECULAR, specular_spot);
-    glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 8.0f);  // Sharper beam for second spotlight
-    glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 50.0f); // Higher exponent for sharper beam
+    glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 8.0f);    
+    glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 50.0f);   
 
-    // Enable material properties
     glEnable(GL_COLOR_MATERIAL);
 }
 
@@ -1085,7 +1188,7 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_DEPTH_TEST);
-    glShadeModel(GL_SMOOTH); // Modelo de iluminacion suave
+    glShadeModel(GL_SMOOTH);   
     glLoadIdentity();
     update_camera();
     draw_lasers();
@@ -1097,10 +1200,11 @@ void display()
     draw_hangar();
     check_collision();
     update_explosions();
+    if(thirdPerson) drawShip(posX, posY, posZ, yaw, pitch);
     glPopMatrix();
 
     glDepthMask(GL_FALSE);
-    if(cockpit) drawUIImage();
+    if(cockpit && !thirdPerson) drawUIImage();
     glDepthMask(GL_TRUE);
 
     glutSwapBuffers();
@@ -1138,16 +1242,19 @@ void passive_motion(int x, int y)
 void init()
 {
     generate_grid();
-    lighting();
     loadTexture();
     generate_distribution_asteroids();
     generate_distribution_asteroids_hangar();
+    lighting();
 }
 
 void keyboard(unsigned char key, int x, int y)
 {
     switch (key)
     {
+    case 't':
+        thirdPerson = !thirdPerson;
+        break;
     case 'a':
         speed += SPEED_INCREMENT;
         if (speed > MAX_SPEED)
@@ -1177,42 +1284,39 @@ void keyboard(unsigned char key, int x, int y)
         break;
     case 'w':
         auto now = std::chrono::steady_clock::now();
-        if (now - lastPressedTime >= triggerInterval) {  // Check if 0.1 seconds have passed
-            // Play the sound and loop it as long as the key is held down
+        if (now - lastPressedTime >= triggerInterval) {    
+              
             PlaySound(TEXT("assets/plasmashot.wav"), NULL, SND_FILENAME | SND_ASYNC );
 
-            // Print debug information
-            std::cout << "Left mouse button clicked at (" << posX << ", " << posY << ", " << posZ << ")"
-                << ", at angles: yaw, " << yaw << ", pitch, " << pitch << std::endl;
-
-            // Create and add a new laser
             std::vector<float>* laser = new std::vector<float>;
-            float frontX = cos(yaw * 3.14159 / 180.0f) * cos(pitch * 3.14159 / 180.0f);
-            float frontZ = sin(pitch * 3.14159 / 180.0f);
-            float frontY = -sin(yaw * 3.14159 / 180.0f) * cos(pitch * 3.14159 / 180.0f);
+            float frontX = cos(yawCopy * 3.14159 / 180.0f) * cos(pitchCopy * 3.14159 / 180.0f);
+            float frontZ = sin(pitchCopy * 3.14159 / 180.0f);
+            float frontY = -sin(yawCopy * 3.14159 / 180.0f) * cos(pitchCopy * 3.14159 / 180.0f);
             laser->push_back(posX);
             laser->push_back(posY);
             laser->push_back(posZ);
-            laser->push_back(yaw);
-            laser->push_back(pitch);
+            laser->push_back(yawCopy);
+            laser->push_back(pitchCopy);
             laser->push_back(frontX);
             laser->push_back(frontY);
             laser->push_back(frontZ);
             lasers.push_back(laser);
 
-            // Update the last pressed time
             lastPressedTime = now;
         }
+        break;
     }
+
 }
 
 int main(int argc, char** argv)
 {
+    std::cout << "a y z aceleran y deceleran la nave. l y c para apagar/encender luces y mostrar cabina respectivamente. w para disparar. t para cambiar el modo a 3a persona. Los asteroides que no son parte de la base SE PUEDEN DESTRUIR CON LOS DISPAROS. Se ha añadido sonido" <<  std::endl;
     FreeImage_Initialise();
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(1920, 1080);
-    glutInitWindowPosition(50, 50);
+    glutInitWindowSize(1280, 720);
+    glutInitWindowPosition(-10, -10);
     glutCreateWindow("3D Flight Camera");
 
     init();

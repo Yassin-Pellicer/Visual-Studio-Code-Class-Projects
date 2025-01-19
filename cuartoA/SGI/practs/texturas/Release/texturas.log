@@ -1,72 +1,75 @@
 ﻿  Source.cpp
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(187,23): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(187,17): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(187,11): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(288,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(289,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(290,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(291,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(292,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(296,27): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(306,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(196,23): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(196,17): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(196,11): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(293,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(294,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(295,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(296,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(297,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(301,27): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(311,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
           with
           [
               _Ty=float
           ]
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(307,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(312,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
           with
           [
               _Ty=float
           ]
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(308,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(313,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
           with
           [
               _Ty=float
           ]
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(491,24): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(510,24): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(550,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(551,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(552,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(553,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(554,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(578,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(477,24): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(496,24): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(536,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(537,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(538,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(539,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(540,21): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(563,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
           with
           [
               _Ty=float
           ]
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(579,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(564,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
           with
           [
               _Ty=float
           ]
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(580,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(565,29): warning C4244: 'argumento': conversión de 'int' a '_Ty'; posible pérdida de datos
           with
           [
               _Ty=float
           ]
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(590,23): warning C4018: '<': no coinciden signed/unsigned
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(595,46): warning C4244: 'argumento': conversión de '_Ty' a 'int'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(575,23): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(580,46): warning C4244: 'argumento': conversión de '_Ty' a 'int'; posible pérdida de datos
           with
           [
               _Ty=float
           ]
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(603,23): warning C4018: '<': no coinciden signed/unsigned
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(606,39): warning C4244: 'argumento': conversión de '_Ty' a 'int'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(588,23): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(591,39): warning C4244: 'argumento': conversión de '_Ty' a 'int'; posible pérdida de datos
           with
           [
               _Ty=float
           ]
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(615,21): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(730,21): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1018,24): warning C4244: 'argumento': conversión de 'float' a 'unsigned int'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1190,26): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1191,26): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1192,26): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1230,24): warning C4244: 'argumento': conversión de 'float' a 'unsigned int'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(601,24): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(601,19): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(601,14): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(715,21): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(819,21): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1126,24): warning C4244: 'argumento': conversión de 'float' a 'unsigned int'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1292,26): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1293,26): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1294,26): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\Source.cpp(1334,24): warning C4244: 'argumento': conversión de 'float' a 'unsigned int'; posible pérdida de datos
   Generando código
-  34 of 487 functions ( 7.0%) were compiled, the rest were copied from previous compilation.
-    32 functions were new in current compilation
-    5 functions had inline decision re-evaluated but remain unchanged
+  1 of 465 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    2 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada
   texturas.vcxproj -> C:\Users\yassi\source\repos\Golden-hat\Visual-Studio-Code-Class-Projects\cuartoA\SGI\practs\texturas\texturas.exe
